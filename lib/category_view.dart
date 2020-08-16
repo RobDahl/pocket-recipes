@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pocket_recipes/models/category-item.dart';
+import 'package:pocket_recipes/recipe_view.dart';
 import 'package:pocket_recipes/services/db.dart';
 
 class CategoryView extends StatefulWidget {
-  CategoryView({Key key, this.title, this.database}) : super(key: key);
+  CategoryView({Key key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -16,7 +17,6 @@ class CategoryView extends StatefulWidget {
   // always marked "final".
 
   final String title;
-  final database;
 
   @override
   _CategoryViewState createState() => _CategoryViewState();
@@ -44,6 +44,13 @@ class _CategoryViewState extends State<CategoryView> {
                   Text(item.title, style: _style)
                 ]
             ),
+            onPressed: ()
+            {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => RecipeView(title: item.title, category: item.title,)),
+              );
+            },
           )
       ),
       onDismissed: (DismissDirection direction) => _delete(item),
@@ -95,7 +102,7 @@ class _CategoryViewState extends State<CategoryView> {
             ],
             content: TextField(
               autofocus: true,
-              decoration: InputDecoration(labelText: 'Category Name', hintText: 'e.g. Breakfast, Brunch, or Mexican'),
+              decoration: InputDecoration(labelText: 'Category Name', hintText: 'e.g. Breakfast'),
               onChanged: (value) { _title = value; },
             ),
           );
