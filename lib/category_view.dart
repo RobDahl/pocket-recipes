@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pocket_recipes/models/todo-item.dart';
+import 'package:pocket_recipes/models/category-item.dart';
 import 'package:pocket_recipes/services/db.dart';
 
 class CategoryView extends StatefulWidget {
@@ -23,15 +23,15 @@ class CategoryView extends StatefulWidget {
 }
 
 class _CategoryViewState extends State<CategoryView> {
-  String _task;
+  String _title;
 
-  List<TodoItem> _tasks = [];
+  List<CategoryItem> _categories = [];
 
   TextStyle _style = TextStyle(color: Colors.white, fontSize: 24);
 
-  List<Widget> get _items => _tasks.map((item) => format(item)).toList();
+  List<Widget> get _items => _categories.map((item) => format(item)).toList();
 
-  Widget format(TodoItem item) {
+  Widget format(CategoryItem item) {
 
     return Dismissible(
       key: Key(item.id.toString()),
@@ -41,41 +41,38 @@ class _CategoryViewState extends State<CategoryView> {
             child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text(item.task, style: _style),
-                  Icon(item.complete == true ? Icons.radio_button_checked : Icons.radio_button_unchecked, color: Colors.white)
+                  Text(item.title, style: _style)
                 ]
             ),
-            onPressed: () => _toggle(item),
           )
       ),
       onDismissed: (DismissDirection direction) => _delete(item),
     );
   }
 
-  void _toggle(TodoItem item) async {
+//  void _toggle(CategoryItem item) async {
+//
+//    item.complete = !item.complete;
+//    dynamic result = await DB.update(CategoryItem.table, item);
+//    print(result);
+//    refresh();
+//  }
 
-    item.complete = !item.complete;
-    dynamic result = await DB.update(TodoItem.table, item);
-    print(result);
-    refresh();
-  }
+  void _delete(CategoryItem item) async {
 
-  void _delete(TodoItem item) async {
-
-    DB.delete(TodoItem.table, item);
+    DB.delete(CategoryItem.table, item);
     refresh();
   }
 
   void _save() async {
 
     Navigator.of(context).pop();
-    TodoItem item = TodoItem(
-        task: _task,
-        complete: false
+    CategoryItem item = CategoryItem(
+        title: _title
     );
 
-    await DB.insert(TodoItem.table, item);
-    setState(() => _task = '' );
+    await DB.insert(CategoryItem.table, item);
+    setState(() => _title = '' );
     refresh();
   }
 
@@ -85,7 +82,7 @@ class _CategoryViewState extends State<CategoryView> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Create New Task"),
+            title: Text("Create New Category"),
             actions: <Widget>[
               FlatButton(
                   child: Text('Cancel'),
@@ -98,8 +95,8 @@ class _CategoryViewState extends State<CategoryView> {
             ],
             content: TextField(
               autofocus: true,
-              decoration: InputDecoration(labelText: 'Task Name', hintText: 'e.g. pick up bread'),
-              onChanged: (value) { _task = value; },
+              decoration: InputDecoration(labelText: 'Category Name', hintText: 'e.g. Breakfast, Brunch, or Mexican'),
+              onChanged: (value) { _title = value; },
             ),
           );
         }
@@ -115,8 +112,8 @@ class _CategoryViewState extends State<CategoryView> {
 
   void refresh() async {
 
-    List<Map<String, dynamic>> _results = await DB.query(TodoItem.table);
-    _tasks = _results.map((item) => TodoItem.fromMap(item)).toList();
+    List<Map<String, dynamic>> _results = await DB.query(CategoryItem.table);
+    _categories = _results.map((item) => CategoryItem.fromMap(item)).toList();
     setState(() { });
   }
 
@@ -130,7 +127,7 @@ class _CategoryViewState extends State<CategoryView> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () { _create(context); },
-          tooltip: 'New TODO',
+          tooltip: 'New Category',
           child: Icon(Icons.library_add),
         )
     );
